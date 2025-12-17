@@ -2,10 +2,57 @@
 
 ## Overview
 This project implements a complete IoT Intrusion Detection System (IDS) testbed using:
-- **Contiki-NG**: Operating system for IoT devices
-- **Cooja Simulator**: Network simulation environment
-- **TinyML**: Lightweight machine learning for embedded devices
+- **Contiki-NG**: Operating system for IoT devices (C-based)
+- **Cooja Simulator**: Network simulation environment (C-based)
+- **TinyML**: Lightweight machine learning for embedded devices (C deployment)
 - **CICIOT2023-like features**: Network traffic features similar to the CICIOT2023 dataset
+
+## ⚠️ Important: Proper Workflow
+
+### Why NOT Python Simulation?
+| Aspect | Python Simulation | Cooja + C |
+|--------|------------------|-----------|
+| Network Stack | Simplified | Real RPL, 6LoWPAN |
+| Timing | Approximate | Cycle-accurate |
+| Energy | Estimated | Energest (real) |
+| Radio | None | UDGM, MRM models |
+| Deployment | No | Same code runs on hardware |
+
+### Data Collection: From Testbed, NOT Synthetic
+❌ **Wrong**: `np.random.uniform()` - generates fake distributions  
+✅ **Correct**: Collect real traffic from Cooja simulation or hardware
+
+## Correct Workflow
+
+### Step 1: Run Data Collection in Cooja
+```bash
+# Start Cooja
+cd contiki-ng/tools/cooja && ./gradlew run
+# Load: cooja/data_collection_simulation.csc
+```
+
+### Step 2: Collect Flow Data
+```bash
+# From Cooja log
+python scripts/collect_data.py --cooja-log COOJA.testlog -o testbed_dataset.csv
+
+# Or from serial (real hardware)
+python scripts/collect_data.py --port /dev/ttyUSB0 -o testbed_dataset.csv
+```
+
+### Step 3: Train TinyML Model
+```bash
+python scripts/train_from_testbed.py \
+    --input testbed_dataset.csv \
+    --output contiki-ng/ids-node/tinyml_model_trained.h
+```
+
+### Step 4: Deploy and Evaluate
+```bash
+# Compile IDS with trained model
+cd contiki-ng/ids-gateway && make TARGET=cooja
+# Run evaluation simulation to measure metrics
+```
 
 ## Project Structure
 ```
@@ -14,18 +61,37 @@ iot-ids-testbed/
 │   ├── sensor-node/          # Normal IoT sensor nodes
 │   ├── attacker-node/        # Nodes simulating attacks
 │   ├── ids-node/             # IDS node with TinyML model
+│   ├── ids-gateway/          # Gateway with metrics collection
+│   ├── data-collector/       # Flow data collector
 │   └── border-router/        # RPL border router
 ├── cooja/
-│   └── simulation.csc        # Cooja simulation configuration
-├── tinyml/
-│   ├── dataset/              # Generated dataset
-│   ├── training/             # Model training scripts
-│   └── test_model.py         # Model testing script
+│   ├── data_collection_simulation.csc  # For training data
+│   ├── ids_evaluation_simulation.csc   # For metrics
+│   └── scripts/
+│       └── collect_simulation_data.js
 ├── scripts/
-│   └── data_collector.py     # Collect and process traffic data
-└── docs/
-    └── features.md           # Feature documentation
+│   ├── collect_data.py       # Parse Cooja/serial output
+│   └── train_from_testbed.py # Train from real data
+└── README.md
 ```
+
+## Performance Metrics
+
+### Detection Metrics
+- Accuracy, Precision, Recall, F1 Score
+- True/False Positives/Negatives
+
+### Latency Metrics
+- Inference time (microseconds)
+- Throughput (inferences/second)
+
+### Network Metrics
+- Packet Delivery Ratio (PDR)
+- Packets dropped
+
+### Energy Metrics
+- CPU/LPM/TX/RX time
+- Energy per inference (microjoules)
 
 ## Network Topology
 ```
