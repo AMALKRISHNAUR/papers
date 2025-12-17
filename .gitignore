@@ -1,0 +1,78 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Contiki-NG build files
+*.cooja
+*.native
+*.z1
+*.sky
+*.exp5438
+*.firmware
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
+obj_*/
+
+# Cooja
+*.pcap
+COOJA.log
+COOJA.testlog
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Model checkpoints (keep trained model)
+*.h5
+*.pb
+*.tflite
+checkpoints/
+
+# Large dataset files (keep compressed)
+# *.npz  # Comment this to keep the trained dataset

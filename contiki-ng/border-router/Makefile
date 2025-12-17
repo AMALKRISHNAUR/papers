@@ -1,0 +1,11 @@
+CONTIKI_PROJECT = border-router
+all: $(CONTIKI_PROJECT)
+
+PLATFORMS_ONLY = cooja
+
+MAKE_MAC = MAKE_MAC_CSMA
+MAKE_NET = MAKE_NET_IPV6
+MAKE_ROUTING = MAKE_ROUTING_RPL_LITE
+
+CONTIKI = ../../contiki-ng
+include $(CONTIKI)/Makefile.include
